@@ -1,0 +1,23 @@
+ldap:
+  vars:
+    ssh_gidNumber:
+      - 10000 # first-group
+    ssh_uidNumber:
+      - 10001 # ldap.user
+      - 10002 # taro.tanaka
+      - 10003 # gouta.ohara
+    sudo_gidNumber:
+      - 10000 # first-group
+    sudo_uidNumber:
+      - 10001 # ldap.user
+      - 10002 # taro.tanaka
+      - 10003 # gouta.ohara
+
+c_tomcat:
+  hosts:
+    Tomcat_Server:
+      ansible_host: 3.112.211.150
+
+tomcat:
+  children:
+    c_tomcat:
