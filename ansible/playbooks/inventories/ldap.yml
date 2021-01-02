@@ -12,6 +12,8 @@ ldap:
       - 10001 # ldap.user
       - 10002 # taro.tanaka
       - 10003 # gouta.ohara
+  children:
+    tomcat:
 
 c_tomcat:
   hosts:
@@ -19,5 +21,5 @@ c_tomcat:
       ansible_host: 3.112.211.150
 
 tomcat:
-  children:
+  children:      
     c_tomcat:

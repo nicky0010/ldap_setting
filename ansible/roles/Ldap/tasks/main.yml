@@ -3,70 +3,70 @@
     path: /etc/sssd/sssd.conf
   register: sssdconf
 
-#- name: 1. Setup LDAP user for Amazon Linux2
-#  block:
-#    - name: 1-1. Copy /etc/sssd/sssd.conf
-#      template:
-#        src: sssd.conf.j2
-#        dest: /etc/sssd/sssd.conf
-#        owner: root
-#        group: root
-#        mode: 0600
-#        backup: yes
-#        validate: 'grep "domains\s*= default" %s'
-#      register: modify_sssd_result
-#      notify: systemctl restart sssd
-#
-#    - name: 1-2. Backup /etc/sssd/sssd.conf files
-#      shell: mv /etc/sssd/sssd.conf.*.*~ /var/backup/Ldap/.
-#      when: modify_sssd_result.changed == true
-#      ignore_errors:  "{{ansible_check_mode}}"
-#
-#  when: sssdconf.stat.exists
-#
-#- name: 2. Search ldap_user(uidNumber)
-#  shell:
-#    ldapsearch -x -LLL -b "ou=People,dc=aws,dc=fastretailing,dc=com" "(uidNumber={{ item }})" | \
-#    grep "^uid:" | awk '{print $2 " ALL=(ALL) ALL";}'
-#  with_items: "{{ sudo_uidNumber}}"
-#  changed_when: false
-#  register: ldap_users
-#  when: sudo_uidNumber
-#
-#- name: Buckup /etc/sudoers.d/ldap files before editing
-#  copy:
-#    remote_src: yes
-#    src: /etc/sudoers.d/ldap
-#    dest: /var/backup/Ldap/ldap
-#    owner: root
-#    group: root
-#    mode: 0440
-#    backup: yes
-#  ignore_errors:  "{{ ansible_check_mode }}"
-#
-#- name: Add ldap users to /etc/sudoers.d/ldap
-#  lineinfile:
-#    dest: /etc/sudoers.d/ldap
-#    line: "{{ item.stdout }}"
-#    create: yes
-#    state: present
-#    validate: "visudo -cf %s"
-#    owner: root
-#    group: root
-#    mode: 0440
-#  with_items: "{{ ldap_users.results }}"
-#  when: item.stdout is defined
-#
-#- name: Backup /etc/sudoers.d/ldap files after editing
-#  copy:
-#    remote_src: yes
-#    src: /etc/sudoers.d/ldap
-#    dest: /var/backup/Ldap/ldap
-#    owner: root
-#    group: root
-#    mode: 0440
-#    backup: yes
-#  ignore_errors:  "{{ ansible_check_mode }}"
-#
-#- meta: flush_handlers
+- name: 1. Setup LDAP user for Amazon Linux2
+  block:
+    - name: 1-1. Copy /etc/sssd/sssd.conf
+      template:
+        src: sssd.conf.j2
+        dest: /etc/sssd/sssd.conf
+        owner: root
+        group: root
+        mode: 0600
+        backup: yes
+        validate: 'grep "domains\s*= default" %s'
+      register: modify_sssd_result
+      notify: systemctl restart sssd
+
+    - name: 1-2. Backup /etc/sssd/sssd.conf files
+      shell: mv /etc/sssd/sssd.conf.*.*~ /var/backup/Ldap/.
+      when: modify_sssd_result.changed == true
+      ignore_errors:  "{{ansible_check_mode}}"
+
+  when: sssdconf.stat.exists
+
+- name: 2. Search ldap_user(uidNumber)
+  shell:
+    ldapsearch -x -LLL -b "ou=People,dc=hadoop,dc=com" "(uidNumber={{ item }})" | \
+    grep "^uid:" | awk '{print $2 " ALL=(ALL) ALL";}'
+  with_items: "{{ sudo_uidNumber}}"
+  changed_when: false
+  register: ldap_users
+  when: sudo_uidNumber
+
+- name: Buckup /etc/sudoers.d/ldap files before editing
+  copy:
+    remote_src: yes
+    src: /etc/sudoers.d/ldap
+    dest: /var/backup/Ldap/ldap
+    owner: root
+    group: root
+    mode: 0440
+    backup: yes
+  ignore_errors:  "{{ ansible_check_mode }}"
+
+- name: Add ldap users to /etc/sudoers.d/ldap
+  lineinfile:
+    dest: /etc/sudoers.d/ldap
+    line: "{{ item.stdout }}"
+    create: yes
+    state: present
+    validate: "visudo -cf %s"
+    owner: root
+    group: root
+    mode: 0440
+  with_items: "{{ ldap_users.results }}"
+  when: item.stdout is defined
+
+- name: Backup /etc/sudoers.d/ldap files after editing
+  copy:
+    remote_src: yes
+    src: /etc/sudoers.d/ldap
+    dest: /var/backup/Ldap/ldap
+    owner: root
+    group: root
+    mode: 0440
+    backup: yes
+  ignore_errors:  "{{ ansible_check_mode }}"
+
+- meta: flush_handlers
 

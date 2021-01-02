@@ -1,7 +1,7 @@
 - name: 'restart sssd.service'
   systemd:
     name: sssd.service
-    deamon_reload: yes
+    daemon_reload: yes
     enabled: yes
     state: restarted
   listen: 'systemctl restart sssd'
